@@ -259,6 +259,7 @@ public class GameController : MonoBehaviour
         SetPlayerButtons(true);
         SetPlayerColorsInactive();
         EmptySpaces();
+        ai.ResetPreviousScore();
         startInfo.SetActive(true);
     }
 

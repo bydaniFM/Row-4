@@ -43,10 +43,10 @@ public class Board {
         {
             for (byte column = 0; column < columns; column++)
             {
-                if(spaces[row, column] == activePlayer)
+                if(spaces[row, column] == player)
                 {
                     evaluationSum += evaluationMatrix[row, column];
-                }else if(spaces[row, column] == Opponent(activePlayer))
+                }else if(spaces[row, column] == Opponent(player))
                 {
                     evaluationSum -= evaluationMatrix[row, column];
                 }

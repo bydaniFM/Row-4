@@ -11,11 +11,15 @@ public class AI : MonoBehaviour
     public Text[,] buttonList;
     public GameController gameController;
 
-    private int INFINITE = 10000;
-    private int MINUS_INFINITE = -10000;
+    private const int INFINITE = 10000;
+    private const int MINUS_INFINITE = -10000;
 
     private Board board;
     private string activePlayer;
+
+    private int previousScore = MINUS_INFINITE;
+    [SerializeField]
+    private int windowRange = 5;
 
     public Text moveText;
     public Text scoreText;
@@ -31,13 +35,20 @@ public class AI : MonoBehaviour
         gameController = gc;
     }
 
+    public void ResetPreviousScore()
+    {
+        previousScore = MINUS_INFINITE;
+    }
+
     public void Play(string actPlayer)
     {
         ScoringMove move;
         activePlayer = actPlayer;
         ObserveBoard();
 
-        DateTime timeBefore = DateTime.Now;
+        DateTime timeBefore;
+
+        timeBefore = DateTime.Now;
         move = Minimax(board, 0);
         DateTime timeAfter = DateTime.Now;
         moveText.text = "Move: " + move.move;
@@ -46,6 +57,20 @@ public class AI : MonoBehaviour
 
         timeBefore = DateTime.Now;
         move = Negamax(board, 0);
+        timeAfter = DateTime.Now;
+        moveText.text += "//: " + move.move;
+        scoreText.text += "//: " + move.score;
+        timeText.text += "//: " + (timeAfter - timeBefore).TotalSeconds;
+
+        timeBefore = DateTime.Now;
+        move = NegamaxAB(board, 0, MINUS_INFINITE, INFINITE);
+        timeAfter = DateTime.Now;
+        moveText.text += "//: " + move.move;
+        scoreText.text += "//: " + move.score;
+        timeText.text += "//: " + (timeAfter - timeBefore).TotalSeconds;
+
+        timeBefore = DateTime.Now;
+        move = AspirationSearch(board);
         timeAfter = DateTime.Now;
         moveText.text += "//: " + move.move;
         scoreText.text += "//: " + move.score;
@@ -192,6 +217,87 @@ public class AI : MonoBehaviour
             scoringMove = new ScoringMove(bestScore, bestMove);
         }
         return scoringMove;
+    }
+
+    ScoringMove NegamaxAB(Board board, byte depth, int alpha, int beta)
+    {
+        int bestMove = 0;
+        int bestScore = 0;
+        ScoringMove scoringMove; // score, move
+        Board newBoard;
+
+        // Check if we are finished recursing
+        if (board.IsEndOfGame() || depth == MAX_DEPTH)
+        {
+            if (depth % 2 == 0)
+            {
+                scoringMove = new ScoringMove(board.Evaluate(activePlayer), 0);
+            }
+            else
+            {
+                scoringMove = new ScoringMove(-board.Evaluate(activePlayer), 0);
+            }
+
+        }
+        else
+        {
+            bestScore = MINUS_INFINITE;
+
+            int[] possibleMoves;
+            possibleMoves = board.PossibleMoves();
+
+            foreach (int move in possibleMoves)
+            {
+                newBoard = board.GenerateNewBoardFromMove(move);
+
+                // Recursivity
+                scoringMove = NegamaxAB(newBoard, (byte)(depth + 1), -beta, -Math.Max(alpha, bestScore));
+
+                int invertedScore = -scoringMove.score;
+
+                // Update best score
+
+                if (invertedScore > bestScore)
+                {
+                    bestScore = invertedScore;
+                    bestMove = move;
+                }
+                if(bestScore >= beta)   //Prune
+                {
+                    scoringMove = new ScoringMove(bestScore, bestMove);
+                    return scoringMove;
+                }
+            }
+            scoringMove = new ScoringMove(bestScore, bestMove);
+        }
+        return scoringMove;
+    }
+
+    // Test with depth:6, window:8
+    // More efficient when player makes good moves
+    ScoringMove AspirationSearch(Board board)
+    {
+        int alpha, beta;
+        ScoringMove move;
+
+        if(previousScore != MINUS_INFINITE)
+        {
+            alpha = previousScore - windowRange;
+            beta = previousScore + windowRange;
+            while (true)
+            {
+                move = NegamaxAB(board, 0, alpha, beta);
+                if (move.score <= alpha)        alpha = MINUS_INFINITE;
+                else if (move.score >= beta)    beta = INFINITE;
+                else                            break;
+            }
+        }
+        else
+        {
+            move = NegamaxAB(board, 0, MINUS_INFINITE, INFINITE);
+        }
+        previousScore = move.score;
+        return move;
     }
 
 }
