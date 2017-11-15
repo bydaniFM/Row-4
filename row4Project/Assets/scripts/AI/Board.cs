@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 public class Board {
 
@@ -8,6 +9,9 @@ public class Board {
     public byte rows, columns;
 
     private byte[,] evaluationMatrix;
+
+    public ZobristKeys zobristKeys;
+    public int hashValue;
 
     public Board(byte _rows, byte _columns)
     {
@@ -238,5 +242,43 @@ public class Board {
                 break;
             }
         }
+    }
+
+    public void CalculateHashValue()
+    {
+        int piece, position;
+        int zobristKey;
+
+        hashValue = 0;
+
+        for (int row = 0; row < rows; row++)
+        {
+            for(int column = 0; column < columns; column++)
+            {
+                if(!IsEmptySpace(row, column))
+                {
+                    position = row * columns + column;
+                    if(spaces[row, column] == "0")
+                    {
+                        piece = 0;
+                    }
+                    else
+                    {
+                        piece = 1;
+                    }
+                    zobristKey = zobristKeys.GetKey(position, piece);
+                    hashValue ^= zobristKey;    //generará un hashvalue por cada tablero de claves zobrist
+                }
+            }
+        }
+        PrintHash();
+    }
+
+    public void PrintHash()
+    {
+        string output = "";
+        output += "Valor hash del tablero: " + hashValue + " //";
+        output += Convert.ToString(hashValue, 2).PadLeft(32, '0');
+        Debug.Log(output);
     }
 }

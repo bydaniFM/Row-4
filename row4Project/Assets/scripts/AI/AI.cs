@@ -25,6 +25,14 @@ public class AI : MonoBehaviour
     public Text scoreText;
     public Text timeText;
 
+    public ZobristKeys zobrisKeys;
+
+    void Awake()
+    {
+        zobrisKeys = new ZobristKeys(42, 2);
+        zobrisKeys.Print();
+    }
+
     public void SetButtonList(Text[,] bl)
     {
         buttonList = bl;
@@ -95,6 +103,9 @@ public class AI : MonoBehaviour
             }
         }
         board.activePlayer = this.activePlayer;
+
+        board.zobristKeys = this.zobrisKeys;
+        //board.CalculateHashValue();
     }
 
     void Move(ScoringMove scoringMove)

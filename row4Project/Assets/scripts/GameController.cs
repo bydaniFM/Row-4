@@ -153,6 +153,10 @@ public class GameController : MonoBehaviour
             }
         }
         checkBoard.activePlayer = this.activePlayer;
+
+        checkBoard.zobristKeys = ai.zobrisKeys;
+        checkBoard.CalculateHashValue();
+
         if (checkBoard.IsWinningPosition(activePlayer)) 
         {
             return true;
