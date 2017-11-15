@@ -39,7 +39,7 @@ public class Board {
             return 0;
         }
         int evaluationSum = 0;
-        for (byte row = 0; row < rows - 3; row++)   //-3 para que no se salga del array al hacer la comparacion
+        for (byte row = 0; row < rows; row++)
         {
             for (byte column = 0; column < columns; column++)
             {
@@ -121,7 +121,7 @@ public class Board {
 
     protected bool IsVerticalWinning(string player)
     {
-        for (byte row = 0; row < rows - 3; row++)   //-3 para que no se salga del array al hacer la comparacion
+        for (byte row = 0; row < rows - 3; row++)
         {
             for (byte column = 0; column < columns; column++)
             {

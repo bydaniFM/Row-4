@@ -38,12 +38,20 @@ public class AI : MonoBehaviour
         ObserveBoard();
 
         DateTime timeBefore = DateTime.Now;
-        move = Minimax(board, activePlayer, 0);
+        move = Minimax(board, 0);
         DateTime timeAfter = DateTime.Now;
         moveText.text = "Move: " + move.move;
         scoreText.text = "Score: " + move.score;
-        timeText.text = "Time: " + (timeAfter - timeBefore);
-        Debug.Log("Jugador Activo:" + activePlayer + " Jugada Elegida:" + move.move + "/" + move.score);
+        timeText.text = "Time: " + (timeAfter - timeBefore).TotalSeconds;
+
+        timeBefore = DateTime.Now;
+        move = Negamax(board, 0);
+        timeAfter = DateTime.Now;
+        moveText.text += "//: " + move.move;
+        scoreText.text += "//: " + move.score;
+        timeText.text += "//: " + (timeAfter - timeBefore).TotalSeconds;
+
+        //Debug.Log("Jugador Activo:" + activePlayer + " Jugada Elegida:" + move.move + "/" + move.score);
 
         Move(move);
     }
@@ -85,14 +93,15 @@ public class AI : MonoBehaviour
     //    return bestMove;
     //}
     
-    ScoringMove Minimax(Board board, string activePlayer, byte depth)
+    ScoringMove Minimax(Board board, byte depth)
     {
-        // Devuelve el score del tablero y la jugada con la que se llega a él.
+        // Returns the board score and the play with which it gets to the score
         int bestMove = 0;
         int bestScore = 0;
-        ScoringMove scoringMove; // score, movimiento
+        ScoringMove scoringMove; // score, move
         Board newBoard;
-        // Comprobar si hemos terminado de hacer recursión
+
+        // Check if we are finished recursing
         if (board.IsEndOfGame() || depth == MAX_DEPTH)
         {
             scoringMove = new ScoringMove(board.Evaluate(activePlayer), 0);
@@ -109,10 +118,10 @@ public class AI : MonoBehaviour
             {
                 newBoard = board.GenerateNewBoardFromMove(move);
 
-                // Recursividad
-                scoringMove = Minimax(newBoard, activePlayer, (byte) (depth + 1));
+                // Recursivity
+                scoringMove = Minimax(newBoard, (byte) (depth + 1));
 
-                // Actualizar mejor score
+                // Update best score
                 if (board.activePlayer == activePlayer)
                 {
                     if (scoringMove.score > bestScore)
@@ -129,6 +138,56 @@ public class AI : MonoBehaviour
                         bestMove = move;
                     }
                 }
+            }
+            scoringMove = new ScoringMove(bestScore, bestMove);
+        }
+        return scoringMove;
+    }
+
+    ScoringMove Negamax(Board board, byte depth)
+    {
+        // Returns the board score and the play with which it gets to the score
+        int bestMove = 0;
+        int bestScore = 0;
+        ScoringMove scoringMove; // score, move
+        Board newBoard;
+
+        // Check if we are finished recursing
+        if (board.IsEndOfGame() || depth == MAX_DEPTH)
+        {
+            if(depth%2 == 0)
+            {
+                scoringMove = new ScoringMove(board.Evaluate(activePlayer), 0);
+            }else
+            {
+                scoringMove = new ScoringMove(-board.Evaluate(activePlayer), 0);
+            }
+            
+        }
+        else
+        {
+            bestScore = MINUS_INFINITE;
+
+            int[] possibleMoves;
+            possibleMoves = board.PossibleMoves();
+
+            foreach (int move in possibleMoves)
+            {
+                newBoard = board.GenerateNewBoardFromMove(move);
+
+                // Recursivity
+                scoringMove = Negamax(newBoard, (byte)(depth + 1));
+
+                int invertedScore = -scoringMove.score;
+
+                // Update best score
+                
+                if (invertedScore > bestScore)
+                {
+                    bestScore = invertedScore;
+                    bestMove = move;
+                }
+                
             }
             scoringMove = new ScoringMove(bestScore, bestMove);
         }
