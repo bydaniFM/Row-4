@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Board {
 
-    public string[,] spaces;
+    public string[,] spaces; 
     public string activePlayer;
 
     public byte rows, columns;
@@ -19,12 +19,12 @@ public class Board {
         columns = _columns;
         spaces = new string[rows, columns];
 
-        evaluationMatrix = new byte[,] {{ 3, 4, 5, 7, 5, 4, 3},
-                                        { 4, 6, 8, 10, 8, 6, 4},
+        evaluationMatrix = new byte[,] {{ 3, 4,  5,  7,  5, 4, 3},
+                                        { 4, 6,  8, 10,  8, 6, 4},
                                         { 5, 8, 11, 13, 11, 8, 5},
                                         { 5, 8, 11, 13, 11, 8, 5},
-                                        { 4, 6, 8, 10, 8, 6, 4},
-                                        { 3, 4, 5, 7, 5, 4, 3}
+                                        { 4, 6,  8, 10,  8, 6, 4},
+                                        { 3, 4,  5,  7,  5, 4, 3}
                                        };
     }
 
@@ -47,10 +47,11 @@ public class Board {
         {
             for (byte column = 0; column < columns; column++)
             {
-                if(spaces[row, column] == player)
+                if (spaces[row, column] == player)
                 {
                     evaluationSum += evaluationMatrix[row, column];
-                }else if(spaces[row, column] == Opponent(player))
+                }
+                else if (spaces[row, column] == Opponent(player))
                 {
                     evaluationSum -= evaluationMatrix[row, column];
                 }
@@ -68,7 +69,7 @@ public class Board {
         {
             if (IsEmptySpace(0, column)) count++;
         }
-                
+       
         moves = new int[count];
 
         count = 0;
@@ -114,7 +115,7 @@ public class Board {
             return false;
         }
     }
-    public bool IsWinningPosition(string player)
+    public bool IsWinningPosition (string player)
     {
         if (IsVerticalWinning(player)) return true;
         if (IsHorizontalWinning(player)) return true;
@@ -122,17 +123,16 @@ public class Board {
         if (IsDescendentWinning(player)) return true;
         return false;
     }
-
-    protected bool IsVerticalWinning(string player)
+    protected bool IsVerticalWinning (string player)
     {
         for (byte row = 0; row < rows - 3; row++)
         {
             for (byte column = 0; column < columns; column++)
             {
-                if((spaces[row, column] == player)  &&
-                   (spaces[row + 1, column] == player) &&
-                   (spaces[row + 2, column] == player) &&
-                   (spaces[row + 3, column] == player))
+                if ((spaces[row, column] == player) &&
+                    (spaces[row + 1, column] == player) &&
+                    (spaces[row + 2, column] == player) &&
+                    (spaces[row + 3, column] == player))
                 {
                     return true;
                 }
@@ -141,34 +141,16 @@ public class Board {
         return false;
     }
 
-    protected bool IsHorizontalWinning(string player)
+    protected bool IsHorizontalWinning (string player)
     {
         for (byte row = 0; row < rows; row++)
         {
-            for (byte column = 0; column < columns - 3; column++)
+            for (byte column = 0; column < columns -3; column++)
             {
                 if ((spaces[row, column] == player) &&
                     (spaces[row, column + 1] == player) &&
                     (spaces[row, column + 2] == player) &&
                     (spaces[row, column + 3] == player))
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    protected bool IsAscendentWinning(string player)
-    {
-        for (byte row = 3; row < rows; row++)
-        {
-            for (byte column = 0; column < columns - 3; column++)
-            {
-                if ((spaces[row, column] == player) &&
-                    (spaces[row - 1, column + 1] == player) &&
-                    (spaces[row - 2, column + 2] == player) &&
-                    (spaces[row - 3, column + 3] == player))
                 {
                     return true;
                 }
@@ -194,6 +176,23 @@ public class Board {
         }
         return false;
     }
+    protected bool IsAscendentWinning(string player)
+    {
+        for (byte row = 3; row < rows; row++)
+        {
+            for (byte column = 0; column < columns - 3; column++)
+            {
+                if ((spaces[row, column] == player) &&
+                    (spaces[row - 1, column + 1] == player) &&
+                    (spaces[row - 2, column + 2] == player) &&
+                    (spaces[row - 3, column + 3] == player))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     protected bool IsBoardFull()
     {
@@ -203,6 +202,7 @@ public class Board {
         }
         return true;
     }
+
     public Board GenerateNewBoardFromMove(int move)
     {
         Board newBoard = this.DuplicateBoard();
@@ -210,11 +210,19 @@ public class Board {
         newBoard.activePlayer = Opponent(newBoard.activePlayer);
         return newBoard;
     }
+    public Board HashGenerateNewBoardFromMove(int move)
+    {
+        Board newBoard = this.DuplicateBoard();
+        newBoard.zobristKeys = this.zobristKeys;
+        newBoard.HashMove(move, activePlayer);
+        newBoard.activePlayer = Opponent(newBoard.activePlayer);
+        return newBoard;
+    }
+
 
     public Board DuplicateBoard ()
     {
         Board newBoard = new Board(rows, columns);
-
         for (byte row = 0; row < rows; row++)
         {
             for (byte column = 0; column < columns; column++)
@@ -231,7 +239,6 @@ public class Board {
         if (spaces[row, column] == "") return true;
         else return false;
     }
-
     public void Move(int column, string player)
     {
         for (int row = rows - 1; row >= 0; row--)
@@ -243,8 +250,36 @@ public class Board {
             }
         }
     }
+    public void HashMove(int column, string player)
+    {
+        int filledRow = 0, position, piece, zobristKey;
 
-    public void CalculateHashValue()
+        for (int row = rows - 1; row >= 0; row--)
+        {
+            if (IsEmptySpace(row, column))
+            {
+                spaces[row, column] = player;
+                filledRow = row;
+                break;
+            }
+        }
+
+        position = filledRow * columns + column;
+        if (player == "O")
+        {
+            piece = 0;
+        }
+        else
+        {
+            piece = 1;
+        }
+
+        zobristKey = zobristKeys.GetKey(position, piece);
+
+        hashValue ^= zobristKey;
+    }
+
+    public void CalculateHashValue ()
     {
         int piece, position;
         int zobristKey;
@@ -253,12 +288,12 @@ public class Board {
 
         for (int row = 0; row < rows; row++)
         {
-            for(int column = 0; column < columns; column++)
+            for (int column = 0; column < columns; column++)
             {
-                if(!IsEmptySpace(row, column))
+                if (!IsEmptySpace(row, column))
                 {
                     position = row * columns + column;
-                    if(spaces[row, column] == "0")
+                    if (spaces[row,column] == "O")
                     {
                         piece = 0;
                     }
@@ -267,17 +302,17 @@ public class Board {
                         piece = 1;
                     }
                     zobristKey = zobristKeys.GetKey(position, piece);
-                    hashValue ^= zobristKey;    //generará un hashvalue por cada tablero de claves zobrist
+                    hashValue ^= zobristKey;
                 }
             }
         }
         PrintHash();
     }
 
-    public void PrintHash()
+    void PrintHash()
     {
         string output = "";
-        output += "Valor hash del tablero: " + hashValue + " //";
+        output += "Valor Hash del Tablero: " + hashValue + " // ";
         output += Convert.ToString(hashValue, 2).PadLeft(32, '0');
         Debug.Log(output);
     }

@@ -15,15 +15,16 @@ public class Space : MonoBehaviour {
         gameController = gc;
     }
 
-    public void SetRowColumn(byte _row, byte _column)
+    public void SetRowColumn (byte _row, byte _column)
     {
         row = _row;
         column = _column;
     }
 
     public void SetSpace() {
-        //buttonText.text = gameController.GetActivePlayer();
-        //button.interactable = false;
+        /*
+        buttonText.text = gameController.GetActivePlayer();
+        button.interactable = false;*/
         gameController.FillColumn(column);
         gameController.EndTurn();
     }

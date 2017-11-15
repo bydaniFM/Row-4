@@ -16,8 +16,7 @@ public class PlayerColor
     public Color textColor;
 }
 
-public class GameController : MonoBehaviour
-{
+public class GameController : MonoBehaviour {
 
 
     public GameObject gameOverPanel;
@@ -39,21 +38,20 @@ public class GameController : MonoBehaviour
     public GameObject prefabSpace;
     public byte rows, columns;
 
-
-    //void SetGameControllerReferenceOnButtons()
-    //{
-    //    byte numberOfButtons = (byte)buttonList.Length;
-    //    for (byte i = 0; i < numberOfButtons; i++)
-    //    {
-    //        Text buttonText = buttonList[i];
-    //        Space space = buttonText.GetComponentInParent<Space>();
-    //        space.SetGameControllerReference(this);
-    //    }
-    //}
-
-
-    void Awake()
+    /*
+    void SetGameControllerReferenceOnButtons ()
     {
+        byte numberOfButtons = (byte) buttonList.Length;
+        for (byte i = 0; i < numberOfButtons; i++)
+        {
+            Text buttonText = buttonList[i];
+            Space space = buttonText.GetComponentInParent<Space>();
+            space.SetGameControllerReference(this);
+        }
+    }
+    */
+
+    void Awake () {
         gameOverPanel.SetActive(false);
         restartButton.SetActive(false);
         //activePlayer = "X";
@@ -62,9 +60,9 @@ public class GameController : MonoBehaviour
 
         buttonList = new Text[rows, columns];
 
-        for (byte row = 0; row < rows; row++)
+        for (byte row=0; row < rows; row++)
         {
-            for (byte column = 0; column < columns; column++)
+            for (byte column=0; column< columns; column++)
             {
                 GameObject gameObject = (GameObject)Instantiate(prefabSpace, new Vector3(0, 0, 0), Quaternion.identity);
                 gameObject.transform.SetParent(tablero4.transform);
@@ -77,9 +75,9 @@ public class GameController : MonoBehaviour
 
         ai.SetButtonList(buttonList);
         ai.SetGameController(this);
-    }
-
-    public void FillColumn(byte column)
+	}
+	
+    public void FillColumn (byte column)
     {
         for (int row = rows - 1; row >= 0; row--)
         {
@@ -94,7 +92,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public string GetActivePlayer()
+    public string GetActivePlayer ()
     {
         return activePlayer;
     }
@@ -119,7 +117,7 @@ public class GameController : MonoBehaviour
             {
                 ai.Play("O");
             }
-            /*
+/*
             else if (activePlayer == "X")
             {
                 ai.Play("X");
@@ -128,7 +126,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    bool IsBoardFull()
+    bool IsBoardFull ()
     {
         for (byte row = 0; row < rows; row++)
         {
@@ -141,9 +139,9 @@ public class GameController : MonoBehaviour
         return true;
     }
 
-    bool IsWinState()
+    bool IsWinState ()
     {
-        Board checkBoard = new Board(rows, columns);
+        Board checkBoard = new Board (rows, columns);
         for (byte row = 0; row < rows; row++)
         {
             for (byte column = 0; column < columns; column++)
@@ -154,7 +152,7 @@ public class GameController : MonoBehaviour
         }
         checkBoard.activePlayer = this.activePlayer;
 
-        checkBoard.zobristKeys = ai.zobrisKeys;
+        checkBoard.zobristKeys = ai.zobristKeys;
         checkBoard.CalculateHashValue();
 
         if (checkBoard.IsWinningPosition(activePlayer)) 
@@ -167,7 +165,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    void ChangeSides()
+    void ChangeSides ()
     {
         if (activePlayer == "X")
         {
@@ -180,7 +178,7 @@ public class GameController : MonoBehaviour
             SetPlayerColors(playerX, playerO);
         }
     }
-
+        
     void GameOver()
     {
         DeactivateSpaces();
@@ -188,7 +186,7 @@ public class GameController : MonoBehaviour
         restartButton.SetActive(true);
     }
 
-    void DeactivateSpaces()
+    void DeactivateSpaces ()
     {
         SetSpacesInteractable(false);
     }
@@ -199,7 +197,7 @@ public class GameController : MonoBehaviour
         SetSpacesInteractable(true);
     }
 
-    void EmptySpaces()
+    void EmptySpaces ()
     {
         for (byte row = 0; row < rows; row++)
         {
@@ -211,7 +209,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    void SetSpacesInteractable(bool toggle)
+    void SetSpacesInteractable (bool toggle)
     {
         for (byte row = 0; row < rows; row++)
         {
@@ -224,7 +222,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    void SetPlayerColors(Player newPlayer, Player oldPlayer)
+    void SetPlayerColors (Player newPlayer, Player oldPlayer)
     {
         newPlayer.panel.color = activePlayerColor.panelColor;
         newPlayer.text.color = activePlayerColor.textColor;
@@ -232,7 +230,7 @@ public class GameController : MonoBehaviour
         oldPlayer.text.color = inactivePlayerColor.textColor;
     }
 
-    public void SetStartingSide(string startingSide)
+    public void SetStartingSide (string startingSide)
     {
         activePlayer = startingSide;
         if (activePlayer == "X")
@@ -246,7 +244,7 @@ public class GameController : MonoBehaviour
         StartGame();
     }
 
-    void SetPlayerColorsInactive()
+    void SetPlayerColorsInactive ()
     {
         playerX.panel.color = inactivePlayerColor.panelColor;
         playerX.text.color = inactivePlayerColor.textColor;
@@ -267,18 +265,18 @@ public class GameController : MonoBehaviour
         startInfo.SetActive(true);
     }
 
-    void StartGame()
+    void StartGame ()
     {
         RestartSpaces();
         SetPlayerButtons(false);
         startInfo.SetActive(false);
         if (activePlayer == "O")
         {
-            ai.Play("O");
+           ai.Play("O");
         }
     }
 
-    void SetPlayerButtons(bool toggle)
+    void SetPlayerButtons (bool toggle)
     {
         playerX.button.interactable = toggle;
         playerO.button.interactable = toggle;
